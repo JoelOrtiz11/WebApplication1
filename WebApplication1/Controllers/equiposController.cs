@@ -35,16 +35,25 @@ namespace WebApplication1.Controllers
         [HttpGet]
         [Route("GetById/{id}")]
 
-        public IActionResult Get(int id)
+        public IActionResult GetbyId(int id)
         {
-            equipos? equipo = (from e in _equiposContexto.equipos
-                               where e.id_equipos == id
-                               select e).FirstOrDefault();
+            var equipo = (from e in _equiposContexto.equipos
+                          join b in _equiposContexto.marcas on e.marca_id equals b.id_marcas
+                          join c in _equiposContexto.tipo_equipo on e.tipo_equipo_id equals c.id_tipo_equipo
+                          where e.id_equipos == id
+                          select new
+                          {
+                              e.id_equipos,
+                              e.nombre,
+                              e.descripcion,
+                              e.tipo_equipo_id,
+                              tipo_descripcion = e.descripcion,
+                              e.marca_id,
+                              b.nombre_marca
 
-            if (equipo == null)
-            {
-                return NotFound();
-            }
+                          }
+                        ).FirstOrDefault();
+            if ( equipo == null ) return NotFound();
             return Ok(equipo);
 
         }
